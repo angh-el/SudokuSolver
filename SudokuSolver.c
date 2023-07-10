@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h> 
 
 
 void print_table(int (*table)[9]){
@@ -135,6 +136,82 @@ int solver(int (*table)[9]) {
 }
 
 
+int ** get_tab(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    
+    if (file == NULL) {
+        printf("Error: Cannot open  '%s'. Check that you have typed in the correct filename\n", filename);
+        return NULL;
+    }
+
+    int** table = malloc(9 * sizeof(int*));
+    
+    if (table == NULL) {
+        printf("ERROR: Failure to allocate memory\n");
+        fclose(file);
+        return NULL;
+    }
+
+    char line[256];
+    
+    for (int i = 0; i < 9; i++){
+        if (fgets(line, sizeof(line), file) == NULL){
+            printf("Error: Failure to read line %d from the file.\n", i + 1);
+            
+            for (int j = 0; j < i; j++){
+                free(table[j]);
+            
+            }
+            
+            free(table);
+            fclose(file);
+            return NULL;
+        }
+
+        table[i] = malloc(9 * sizeof(int));
+
+        if (table[i] == NULL){
+            printf("ERROR: Failure to allocate memory\n");
+            
+            for (int j = 0; j < i; j++){
+                free(table[j]);
+            }
+            
+            free(table);
+            fclose(file);
+            return NULL;
+        }
+
+        int num;
+
+        char* token = strtok(line, ", \n");
+
+        for (int j = 0; j < 9; j++){
+            if (token == NULL){
+                printf("Error: Wrong format on line %d of the file\n", i + 1);
+                
+                
+                for (int k = 0; k <= i; k++) {
+                    free(table[k]);
+                }
+
+                free(table);
+                fclose(file);
+                return NULL;
+            }
+
+            
+            sscanf(token, "%d", &num);
+            table[i][j] = num;
+            token = strtok(NULL, ", \n");
+        }
+    }
+
+    fclose(file);
+    return table;
+}
+
+
 int main() {
     printf("Hellow, World!\n");
 
@@ -150,29 +227,12 @@ int main() {
     // {0, 8, 7, 0, 9, 0, 0, 5, 6}
     // };
 
-    // int tab[9][9] = {
-    //     {7, 0, 0, 0, 0, 0, 3, 0, 0},
-    //     {0, 0, 5, 0, 0, 9, 2, 0, 1},
-    //     {0, 9, 0, 4, 0, 0, 0, 0, 0},
-    //     {0, 0, 2, 0, 0, 4, 9, 0, 5},
-    //     {6, 0, 0, 0, 7, 0, 0, 0, 0},
-    //     {0, 0, 0, 0, 0, 0, 0, 8, 0},
-    //     {0, 0, 0, 0, 0, 1, 0, 3, 0},
-    //     {2, 0, 0, 6, 0, 0, 1, 0, 8},
-    //     {0, 0, 8, 0, 0, 0, 0, 4, 0}
-    // };
 
-    int tab[9][9] = {
-        {9, 1, 0, 0, 0, 0, 0, 8, 0},
-        {0, 0, 7, 9, 6, 0, 3, 0, 0},
-        {0, 0, 0, 0, 0, 5, 0, 0, 0},
-        {0, 0, 6, 4, 3, 0, 9, 0, 0},
-        {0, 0, 0, 0, 2, 0, 0, 0, 0},
-        {7, 0, 0, 0, 0, 0, 0, 0, 6},
-        {0, 0, 4, 0, 0, 2, 0, 0, 0},
-        {0, 0, 0, 0, 0, 7, 5, 0, 0},
-        {8, 0, 0, 5, 4, 0, 0, 3, 0}
-    };
+
+    const char * filename = "testCase3.txt";
+    int ** tab = get_tab(filename);
+
+
 
     int(*table)[9] = malloc(9 * sizeof(int[9]));
     if (table != NULL)
@@ -186,31 +246,18 @@ int main() {
         }
     }
 
-    int solution [9][9] = {
-    {9, 7, 3, 2, 5, 8, 4, 6, 1},
-    {2, 1, 4, 9, 3, 6, 7, 8, 5},
-    {6, 5, 8, 7, 1, 4, 3, 9, 2},
-    {8, 6, 9, 5, 4, 1, 2, 3, 7},
-    {7, 3, 1, 6, 2, 9, 5, 4, 8},
-    {5, 4, 2, 8, 7, 3, 6, 1, 9},
-    {1, 9, 5, 3, 6, 7, 8, 2, 4},
-    {4, 2, 6, 1, 8, 5, 9, 7, 3},
-    {3, 8, 7, 4, 9, 2, 1, 5, 6}
-    };
     
-    //printf("%d ", 8/3);
-
-
     //print_table(table);
 
-    int* p_to_empty_cell = find_empty_cell(table);
+    // int* p_to_empty_cell = find_empty_cell(table);
     
-    
-    for (int i = 0; i < 2; i++){
-        printf("%d ", p_to_empty_cell[i]);
-    }
+    // for (int i = 0; i < 2; i++){
+    //     printf("%d ", p_to_empty_cell[i]);
+    // }
 
-    free(p_to_empty_cell);
+    // free(p_to_empty_cell);
+
+    print_table(table);
     
     solver(table);
     
