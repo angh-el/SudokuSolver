@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> 
+#include <time.h>
+#include <stdbool.h>
 
 
 void print_table(int (*table)[9]){
@@ -19,6 +21,7 @@ void print_table(int (*table)[9]){
                 printf("\n -  -  -  -  -  -  -  -  -  -  - ");
             }
         }
+        printf("\n");
         printf("\n");
     }
 
@@ -105,6 +108,9 @@ int solver(int (*table)[9]) {
     int* p_to_empty_cell = find_empty_cell(tab);
 
     if (p_to_empty_cell[0] == 100 && p_to_empty_cell[1] == 100) {
+        printf("\n");
+        printf("----------SOLVED TABLE-----------");//33 - 12 = 21
+        printf("\n");
         print_table(tab);
         return 1;
     } 
@@ -136,20 +142,47 @@ int solver(int (*table)[9]) {
 }
 
 
+
 int ** get_tab(const char* filename) {
-    FILE* file = fopen(filename, "r");
     
+    FILE* file = fopen(filename, "r");
+
+    int ** error_code = malloc(2* sizeof(int*));
+
+    for (int i = 0; i < 2; i++) {
+        error_code[i] = malloc(2 * sizeof(int));
+    }
+    
+    if (error_code != NULL){
+        for (int i = 0; i < 2; i++){
+            for (int j = 0; j < 2; j++){
+                error_code[i][j] = 100;
+            }
+        }
+    }
+    
+    // for (int i = 0; i < 2; i++) {
+    //     free(error_code[i]); 
+    // }
+
+    // free(error_code);
+    
+    
+    int** table = malloc(9 * sizeof(int*));
+
+    // printf("%d, %d\n", error_code[0][0], error_code[1][0]);
+    
+
     if (file == NULL) {
         printf("Error: Cannot open  '%s'. Check that you have typed in the correct filename\n", filename);
-        return NULL;
+        return error_code;
     }
 
-    int** table = malloc(9 * sizeof(int*));
     
     if (table == NULL) {
-        printf("ERROR: Failure to allocate memory\n");
+        printf("ERROR: Failure to allocate memory. Check that the file is in the reight format\n");
         fclose(file);
-        return NULL;
+        return error_code;
     }
 
     char line[256];
@@ -165,13 +198,13 @@ int ** get_tab(const char* filename) {
             
             free(table);
             fclose(file);
-            return NULL;
+            return error_code;
         }
 
         table[i] = malloc(9 * sizeof(int));
 
         if (table[i] == NULL){
-            printf("ERROR: Failure to allocate memory\n");
+            printf("ERROR: Failure to allocate memory. Check that the file is in the reight format\n");
             
             for (int j = 0; j < i; j++){
                 free(table[j]);
@@ -197,10 +230,10 @@ int ** get_tab(const char* filename) {
 
                 free(table);
                 fclose(file);
-                return NULL;
+                return error_code;
             }
 
-            
+
             sscanf(token, "%d", &num);
             table[i][j] = num;
             token = strtok(NULL, ", \n");
@@ -227,24 +260,123 @@ int main() {
     // {0, 8, 7, 0, 9, 0, 0, 5, 6}
     // };
 
+    char input[100];
+    int ** tab;
 
+    printf("SudokuSolver3000\n");
+    
+    bool run = true;
 
-    const char * filename = "testCase3.txt";
-    int ** tab = get_tab(filename);
+    while(run){
+        printf("\n1: Upload file \t2: Exit\n");
+        scanf("%s", input);
+        
+        
+        while(strcmp(input, "1") == 0){
+            printf("Enter the name of your file: \n");
+            
+            scanf("%s", input);
 
+            int table_menu =1;
+            
+            const char * filename = input;
+            tab = get_tab(filename);
 
-
-    int(*table)[9] = malloc(9 * sizeof(int[9]));
-    if (table != NULL)
-    {
-        for (int i = 0; i < 9; i++)
-        {
-            for (int j = 0; j < 9; j++)
-            {
-                table[i][j] = tab[i][j];
+            if(tab[0][0] == 100 && tab[1][0] == 100){
+                // printf("%d, %d\n", tab[0][0], tab[1][0]);
+                // printf("aryaegdaeysabsd\n");
+                table_menu =0;
+                strcpy(input, "0");
+                break;
             }
+
+            else if(tab[0][0] != 100 && tab[1][0] != 100){
+           
+            
+
+            int(*table)[9] = malloc(9 * sizeof(int[9]));
+
+           
+
+            if (table != NULL){
+                //  printf("%d, %d\n", tab[0][0], tab[1][0]);
+                for (int i = 0; i < 9; i++)
+                {
+                    for (int j = 0; j < 9; j++)
+                    {
+                        table[i][j] = tab[i][j];
+                    }
+                }
+            }
+            
+           
+
+            while(table_menu == 1){
+                printf("1: see table\t 2: Solve table\t 3: Go back\n");
+                scanf("%s", input);
+
+                if(strcmp(input, "1") == 0){
+                    print_table(table);
+                }
+
+                if(strcmp(input, "2") == 0){
+                    solver(table);
+                }
+
+                if(strcmp(input, "3") == 0){
+                    table_menu =0;
+                    strcpy(input, "0");
+                }
+            }
+           
+            if (table_menu = 0){
+                strcpy(input, "0");
+                break;
+            }
+            }
+
         }
+        
+        if(strcmp(input, "1") ){
+            if(strcmp(input, "2") == 0){
+            run = false;
+            break;
+            }
+            
+            if(strcmp(input, "3") ){
+                // printf("Invalid input. Please try again.\n");
+                strcpy(input, "0");
+            }
+
+        }
+
+        
+
+
     }
+
+    
+
+
+    // const char * filename = input;
+    // int ** tab = get_tab(filename);
+
+    
+
+    // int(*table)[9] = malloc(9 * sizeof(int[9]));
+    // if (table != NULL)
+    // {
+    //     for (int i = 0; i < 9; i++)
+    //     {
+    //         for (int j = 0; j < 9; j++)
+    //         {
+    //             table[i][j] = tab[i][j];
+    //         }
+    //     }
+    // }
+
+
+    
 
     
     //print_table(table);
@@ -257,9 +389,9 @@ int main() {
 
     // free(p_to_empty_cell);
 
-    print_table(table);
+    // print_table(table);
     
-    solver(table);
+    // solver(table);
     
     
     
